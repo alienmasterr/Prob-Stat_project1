@@ -1,6 +1,6 @@
 # Prob-Stat_project1
 
-Probability and statistics research project in R language
+Probability and statistics KSE course research project in R language.
 
 Dataset1: Statistical analysis and insights from National survey of young people 2002 vs personal (author's, not mine) survey 2019.
 
