@@ -28,10 +28,9 @@ library(tidyverse)
 #-------------------------------------------------------------------------------
 
 #Research question:
-# Among Ukrainian youths aged 18 to 25, did the mean trust in political
-# institutions (measured by trust_president, trust_court, trust_police) fell by
-# at least 10% and the mean life satisfaction improve by at least 3% in 2019
-# compared to 2002?
+# Among Ukrainian youths aged 18 to 25, is there a statistically significant
+# change in trust in political institutions and general life satisfaction in
+# 2019 compared to 2002?
 
 # Target Population:
 # Ukrainian youths (ages 18–25), “very_young” (18–19), “young” (20–21), and
@@ -49,14 +48,14 @@ library(tidyverse)
 #Hypotheses:
 
 #H0:
-# Among Ukrainian youths aged 18–25, there is less than 10% fall in the mean
-# level of trust in political institutions or less than 3% overall growth in the
-# mean life satisfaction between 2002 and 2019.
+# Among Ukrainian youths aged 18–25, there is no statistically significant
+# change in the level of trust in political institutions or in overall life
+# satisfaction between 2002 and 2019
 
 #H1:
-# Among Ukrainian youths aged 18–25, there is more than 10% fall in the mean
-# level of trust in political institutions and more than 3% overall growth in
-# the mean life satisfaction between 2002 and 2019.
+# Among Ukrainian youths aged 18–25, there is a statistically significant change
+# in the level of trust in political institutions and in overall life
+# satisfaction between 2002 and 2019.
 
 #-------------------------------------------------------------------------------
 
@@ -113,6 +112,30 @@ df_ua_new$age%>% unique()
 
 #-------------------------------------------------------------------------------
 
+# Analyze data distribution
+
+ggplot(df_ua_new, aes(x = as.factor(year), y = political_trust, fill = as.factor(year))) +
+  geom_boxplot(alpha = 0.6) +
+  stat_summary(fun = mean, geom = "point", shape = 20, size = 3, color = "red") +
+  labs(title = "Trust in Political Institutions (2002 vs 2019)",
+       x = "Year",
+       y = "Political Trust",
+       fill = "Year") +
+  theme_minimal()
+#the boxplot shows that 
+
+ggplot(df_ua_new, aes(x = as.factor(year), y = life_satisf, fill = as.factor(year))) +
+  geom_boxplot(alpha = 0.6) +
+  stat_summary(fun = mean, geom = "point", shape = 20, size = 3, color = "red") +
+  labs(title = "Life Satisfaction (2002 vs 2019)",
+       x = "Year",
+       y = "Life Satisfaction",
+       fill = "Year") +
+  theme_minimal()
+#the boxplot shows that 
+
+#-------------------------------------------------------------------------------
+
 mean_summary <- df_ua_new %>%
   group_by(year) %>%
   summarize(
@@ -134,9 +157,56 @@ cat("Percentage Growth in Life Satisfaction:", round(perc_growth_life, 2), "%\n"
 
 #-------------------------------------------------------------------------------
 
-#Statistical tests
+#Statistics
 
 alpha <- 0.05
 
-t_test <- t.test()
+t_test_trust <- t.test(political_trust ~ year, data = df_ua_new)
+t_test_trust$p.value<alpha #TRUE
+# this suggests that the mean level of political trust among Ukrainian youth did
+# experience a significant fall between 2002 and 2019
+
+t_test_life <- t.test(life_satisf ~ year, data = df_ua_new)
+t_test_life$p.value<alpha #FALSE
+# this suggests that the change in the level of mean life satisfaction among the
+# Ukrainian youth was not significant between 2002 and 2019
+
+t_test_trust$conf.int #0.08597318 0.43937850
+# since the entire interval is > 0, it suggests that the difference in trust is 
+# statistically significant
+
+t_test_life$conf.int #-0.33789688  0.07613819
+# the interval contains 0, meaning that there is no significant difference in
+# life satisfaction between 2002 and 2019
+
+#-------------------------------------------------------------------------------
+
+#Visualizations
+
+df_summary <- df_ua_new %>%
+  group_by(year) %>%
+  summarise(
+    mean_trust = mean(political_trust, na.rm = TRUE),
+    mean_life = mean(life_satisf, na.rm = TRUE),
+    se_trust = sd(political_trust, na.rm = TRUE) / sqrt(n()),
+    se_life = sd(life_satisf, na.rm = TRUE) / sqrt(n())
+  )
+
+ggplot(df_summary, aes(x = as.factor(year), y = mean_trust)) +
+  geom_point(size = 4, color = "blue") +
+  geom_errorbar(aes(ymin = mean_trust - 1.96 * se_trust, ymax = mean_trust + 1.96 * se_trust), width = 0.2, color = "blue") +
+  labs(title = "Mean Trust with 95% Confidence Intervals",
+       x = "Year",
+       y = "Mean Political Trust") +
+  theme_minimal()
+
+ggplot(df_summary, aes(x = as.factor(year), y = mean_life)) +
+  geom_point(size = 4, color = "blue") +
+  geom_errorbar(aes(ymin = mean_life - 1.96 * se_life, ymax = mean_life + 1.96 * se_life), width = 0.2, color = "blue") +
+  labs(title = "Mean Life Satisfaction with 95% Confidence Intervals",
+       x = "Year",
+       y = "Mean Life Satisfaction") +
+  theme_minimal()
+
+
 
