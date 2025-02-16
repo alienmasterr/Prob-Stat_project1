@@ -134,7 +134,7 @@ cat("Percentage Growth in Life Satisfaction:", round(perc_growth_life, 2), "%\n"
 
 #-------------------------------------------------------------------------------
 
-#Statistics
+#Statistical tests
 
 alpha <- 0.05
 
