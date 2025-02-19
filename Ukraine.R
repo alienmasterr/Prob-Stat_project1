@@ -84,6 +84,7 @@ df_ua$year %>% unique()
 # Data cleaning and preparation
 
 colnames(df_ua)[1] <- "User_ID"
+
 # here we rename the column with represents each respondent to have a more 
 # understandable name thnn previously
 
@@ -96,8 +97,6 @@ df_ua_new <- df_ua %>%
   filter(indicator == 1) %>%
   select(-indicator)
 
-df_ua_new$age
-
 df_ua_new <- df_ua_new %>%
   filter(age %in% c("very_young", "young", "preadult")) %>%
   select(User_ID,
@@ -107,6 +106,8 @@ df_ua_new <- df_ua_new %>%
          age,
          life_satisf,
          year)
+
+df_ua_new$age
 
 df_ua_new$age %>% unique()
 # here we agregate separate columns for ages into one for a more comfortable work
@@ -138,7 +139,8 @@ bp1 <- ggplot(df_ua_new,
                 y = political_trust,
                 fill = as.factor(year)
               )) +
-  geom_boxplot(alpha = 0.75, color = c("blue", "green")) +
+  geom_boxplot(alpha = 0.75, color = c("blue", "green"), outlier.shape = NA) +
+  geom_jitter(width = 0.2, shape = 21, size = 2, color = "gray", fill = "white", alpha = 0.7) +
   stat_summary(
     fun = mean,
     geom = "point",
@@ -147,11 +149,12 @@ bp1 <- ggplot(df_ua_new,
     color = "yellow"
   ) +
   scale_fill_manual(values = c("2002" = "lightblue", "2019" = "lightgreen")) +
-  labs(title = "Trust in Political Institutions(2002/2019)",
-       x = "Year",
-       y = "Political Trust",
-       fill = "Year") +
+  labs(title = "Довіра до політичних інституцій (2002/2019)",
+       x = "Рік",
+       y = "Політична довіра",
+       fill = "Рік") +
   theme_minimal()
+bp1
 # The 2002 box has a higher mean (yellow point) than the 2019 box.
 # So on average the trust in political institutions among the Ukrainian youth
 # was higher in 2002 than 2019.
@@ -167,31 +170,31 @@ bp1 <- ggplot(df_ua_new,
 # So in conclusion we can say that the average level of trust in political
 # institutions among the Ukrainian youth fell in 2019 compared to 2002.
 
-bp2 <- ggplot(df_ua_new, aes(
-  x = as.factor(year),
-  y = life_satisf,
-  fill = as.factor(year)
-)) +
-  geom_boxplot(alpha = 0.75, color = c("blue", "green")) +
-  stat_summary(
-    fun = mean,
-    geom = "point",
-    shape = 20,
-    size = 3,
-    color = "yellow"
-  ) +
-  scale_fill_manual(values = c("2002" = "lightblue", "2019" = "lightgreen")) +
-  labs(title = "Life Satisfaction(2002/2019)",
-       x = "Year",
-       y = "Life Satisfaction",
-       fill = "Year") +
-  theme_minimal()
-# There is no such significant difference between the levels of life satisfaction
-# and the distribution is almost the same, except for the fact that in 2002 we
-# can see some major outliers, who responded 7/10, yet still in 2019 the mean
-# was slightly higher.
-
-grid.arrange(bp1, bp2, ncol = 2)
+# bp2 <- ggplot(df_ua_new, aes(
+#   x = as.factor(year),
+#   y = life_satisf,
+#   fill = as.factor(year)
+# )) +
+#   geom_boxplot(alpha = 0.75, color = c("blue", "green")) +
+#   stat_summary(
+#     fun = mean,
+#     geom = "point",
+#     shape = 20,
+#     size = 3,
+#     color = "yellow"
+#   ) +
+#   scale_fill_manual(values = c("2002" = "lightblue", "2019" = "lightgreen")) +
+#   labs(title = "Life Satisfaction(2002/2019)",
+#        x = "Year",
+#        y = "Life Satisfaction",
+#        fill = "Year") +
+#   theme_minimal()
+# # There is no such significant difference between the levels of life satisfaction
+# # and the distribution is almost the same, except for the fact that in 2002 we
+# # can see some major outliers, who responded 7/10, yet still in 2019 the mean
+# # was slightly higher.
+# 
+# grid.arrange(bp1, bp2, ncol = 2)
 
 df_ua_new  %>%
   arrange(desc(life_satisf))
